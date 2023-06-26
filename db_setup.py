@@ -41,8 +41,8 @@ def build_tables():
         print(cmd)
         cur.execute(cmd)
 
-        con.commit()
-        con.close()
+    con.commit()
+    con.close()
 
 
 if __name__ == "__main__":
