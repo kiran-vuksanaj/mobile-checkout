@@ -37,14 +37,8 @@ def list_inventory(visit_id=None):
 
 @app.route("/")
 def home():
-    con = sqlite3.connect("inventory.db")
-    cur = con.cursor()
-    res = cur.execute("SELECT n FROM counter")
-    n = res.fetchone()
-    print(n)
-    con.close()
     items = list_inventory()
-    return render_template("home.html",n=n,items=items)
+    return render_template("home.html",items=items)
 
 @app.route("/api/add_item")
 def api_add_item():

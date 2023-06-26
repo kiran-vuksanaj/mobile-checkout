@@ -14,7 +14,7 @@ TABLES = [
         ]),
     ('items',[
         'i_id integer PRIMARY KEY AUTOINCREMENT',
-        'name string'
+        'name string NOT NULL UNIQUE'
         ]),
     ('visit_items',[
         'v_id integer',
