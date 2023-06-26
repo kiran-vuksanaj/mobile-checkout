@@ -33,12 +33,24 @@ def list_inventory(visit_id=None):
     res = cur.execute(cmd)
     return res.fetchall()
 
+def del_item(i_id):
+    con = sqlite3.connect("inventory.db")
+    cur = con.cursor()
+    cur.execute("DELETE FROM items WHERE i_id=?",(i_id,))
+    cur.execute("DELETE FROM visit_items WHERE i_id=?",(i_id,))
+    con.commit()
+    con.close()
+
 # FLASK ROUTES
 
 @app.route("/")
 def home():
     items = list_inventory()
     return render_template("home.html",items=items)
+
+@app.route("/api/items")
+def api_list_items():
+    return {'items': list_inventory()}
 
 @app.route("/api/add_item")
 def api_add_item():
@@ -49,3 +61,8 @@ def api_add_item():
     except:
         return "uh oh"
     
+@app.route("/api/del_item")
+def api_del_item():
+    i_id = request.args.get('i_id')
+    del_item(int(i_id))
+    return "success"
