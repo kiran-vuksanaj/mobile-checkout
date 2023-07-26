@@ -1,5 +1,8 @@
 from flask import Flask, render_template,request
 import sqlite3
+from datetime import datetime, date
+from quickstart import qty_sold, orders
+
 
 app = Flask(__name__)
 
@@ -47,6 +50,17 @@ def del_item(i_id):
 def home():
     items = list_inventory()
     return render_template("home.html",items=items)
+
+@app.route("/api/qty")
+def api_qty_data():
+    x = [ date(2023,7,x) for x in range(12,31) ]
+    y = [ qty_sold(orders, dates=[date]) for date in x ]
+    x_str = [ d.strftime("%Y-%m-%d") for d in x ]
+    data = [ [x_str[i],y[i]] for i in range(len(x)) ]
+    return {
+        'success':True,
+        'data': data
+        }
 
 @app.route("/api/items")
 def api_list_items():
