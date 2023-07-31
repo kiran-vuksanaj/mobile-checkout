@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %} Daily Report | YMCA Mobile Market {% endblock %}
+
+{% block body %}
+
+<div class="container-sm">
+  <h1> Activity Today </h1>
+  <p> Refresh for most up to date info. </p>
+  <p> Activity recorded at {{ data|length }} location(s). </p>
+  {% for location in data %}
+  <h2> {{ names['locations'][location] }} </h2>
+  <ul>
+    {% for item in data[location] %}
+    <li> {{names['items'][item]}}: {{data[location][item]}} </li>
+    {% endfor %}
+  {% endfor %}
+  
+</div>
+
+{% endblock %}

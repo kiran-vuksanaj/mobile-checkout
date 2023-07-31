@@ -9,11 +9,18 @@ client = Client(
     access_token=os.environ['SQUARE_ACCESS_TOKEN']
     )
 
+
+name_map = {
+    'locations': {},
+    'items': {}
+    }
+
 result = client.locations.list_locations()
 
 if result.is_success():
     for location in result.body['locations']:
         print(f"{location['id']}: {location['name']}")
+        name_map['locations'][ location['id'] ] = location['name']
 elif result.is_error():
     for error in result.errors:
         print(error['category'])
@@ -22,7 +29,7 @@ elif result.is_error():
 locations = [ location['id'] for location in result.body['locations'] ]
 print(locations)
 
-        
+   
 result = client.catalog.list_catalog()
 item_names = {}
 for catalog_object in result.body['objects']:
@@ -32,6 +39,7 @@ for catalog_object in result.body['objects']:
         item_names[ catalog_object['item_data']['variations'][0]['id'] ] = catalog_object['item_data']['name']
 print(item_names)
 
+name_map['items'] = item_names
 
 
 """
@@ -112,6 +120,18 @@ def qty_sold(orders,dates=None,items=None,locations=None):
                 out += order['items'][item]
         return out
     return sum( [qty(order) for order in orders] )
+
+def date_report(date):
+    out = {}
+    for order in orders:
+        if order['time'].date() == date:
+            if order['location'] not in out:
+                out[ order['location'] ] = {}
+            for item in order['items']:
+                if item not in out[ order['location'] ]:
+                    out[ order['location'] ][item] = 0
+                out[ order['location'] ][item] += order['items'][item]
+    return out
 
 
 print(len(orders))

@@ -1,7 +1,7 @@
 from flask import Flask, render_template,request
 import sqlite3
 from datetime import datetime, date
-from quickstart import qty_sold, orders
+from quickstart import qty_sold, orders, date_report, name_map
 
 
 app = Flask(__name__)
@@ -44,12 +44,28 @@ def del_item(i_id):
     con.commit()
     con.close()
 
+    
 # FLASK ROUTES
 
 @app.route("/")
 def home():
     items = list_inventory()
     return render_template("home.html",items=items)
+
+@app.route("/daily")
+def daily_report():
+    today = datetime.now().date()
+    return render_template("daily.html",
+                           data=date_report(today),
+                           names=name_map)
+
+@app.route("/api/date")
+def api_date_report():
+    date = datetime.strptime( request.args['date'], '%Y-%m-%d' ).date()
+    return {
+        'data': date_report(date),
+        'names': name_map
+        }
 
 @app.route("/api/qty")
 def api_qty_data():
