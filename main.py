@@ -1,10 +1,10 @@
 from flask import Flask, render_template,request
 import sqlite3
 from datetime import datetime, date
-from quickstart import qty_sold, orders, date_report, name_map
-
+from squaredata import SquareData
 
 app = Flask(__name__)
+sq = SquareData()
 
 # DB OPERATIONS
 
@@ -54,23 +54,26 @@ def home():
 
 @app.route("/daily")
 def daily_report():
+    sq.update_orders()
     today = datetime.now().date()
     return render_template("daily.html",
-                           data=date_report(today),
-                           names=name_map)
+                           data=sq.date_report(today),
+                           names=sq.name_map)
 
 @app.route("/api/date")
 def api_date_report():
+    sq.update_orders()
     date = datetime.strptime( request.args['date'], '%Y-%m-%d' ).date()
     return {
-        'data': date_report(date),
-        'names': name_map
+        'data': sq.date_report(date),
+        'names': sq.name_map
         }
 
 @app.route("/api/qty")
 def api_qty_data():
+    sq.update_orders()
     x = [ date(2023,7,x) for x in range(12,31) ]
-    y = [ qty_sold(orders, dates=[date]) for date in x ]
+    y = [ sq.qty_sold(dates=[date]) for date in x ]
     x_str = [ d.strftime("%Y-%m-%d") for d in x ]
     data = [ [x_str[i],y[i]] for i in range(len(x)) ]
     return {

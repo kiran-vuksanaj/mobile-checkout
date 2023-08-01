@@ -30,16 +30,7 @@ locations = [ location['id'] for location in result.body['locations'] ]
 print(locations)
 
    
-result = client.catalog.list_catalog()
-item_names = {}
-for catalog_object in result.body['objects']:
-    if catalog_object['type'] == "ITEM":
-        # print( catalog_object['id'],catalog_object['item_data']['name'] )
-        # print(json.dumps(catalog_object,indent=2))
-        item_names[ catalog_object['item_data']['variations'][0]['id'] ] = catalog_object['item_data']['name']
-print(item_names)
 
-name_map['items'] = item_names
 
 
 """
