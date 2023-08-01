@@ -49,8 +49,7 @@ def del_item(i_id):
 
 @app.route("/")
 def home():
-    items = list_inventory()
-    return render_template("home.html",items=items)
+    return render_template("home.html")
 
 @app.route("/daily")
 def daily_report():
@@ -59,6 +58,15 @@ def daily_report():
     return render_template("daily.html",
                            data=sq.date_report(today),
                            names=sq.name_map)
+
+@app.route("/trends")
+def trends_page():
+    return render_template("trends.html")
+
+@app.route("/inventory")
+def inventory_page():
+    items=list_inventory()
+    return render_template("inventory.html", items=items)
 
 @app.route("/api/date")
 def api_date_report():
@@ -72,7 +80,7 @@ def api_date_report():
 @app.route("/api/qty")
 def api_qty_data():
     sq.update_orders()
-    x = [ date(2023,7,x) for x in range(12,31) ]
+    x = [ date(2023,7,x) for x in range(1,31) ] + [ date(2023,8,x) for x in range(1,31) ]
     y = [ sq.qty_sold(dates=[date]) for date in x ]
     x_str = [ d.strftime("%Y-%m-%d") for d in x ]
     data = [ [x_str[i],y[i]] for i in range(len(x)) ]

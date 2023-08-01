@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %} Inventory | YMCA Mobile Market {% endblock %}
+
+{% block body %}
+<div class="container-sm">
+  <h2> Inventory </h2>
+  <table class="table table-bordered table-themed">
+    <tbody id="inventory_list">
+      <tr id="item-new">
+	<td colspan="100%">
+	  <form id="additem">
+	    <input id="name" type="text" />
+	    <div class="float-end">
+	      <input type="submit" class="btn btn-success" value="+" />
+	    </div>
+	  </form>
+	</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{% endblock %}
