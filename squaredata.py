@@ -99,11 +99,12 @@ class SquareData:
         for order in self.orders:
             if order['time'].date() == date:
                 if order['location'] not in out:
-                    out[ order['location'] ] = {}
+                    out[ order['location'] ] = {'items':{},'visits':0}
+                out[ order['location'] ]['visits'] += 1
                 for item in order['items']:
-                    if item not in out[ order['location'] ]:
-                        out[ order['location'] ][item] = 0
-                    out[ order['location'] ][item] += order['items'][item]
+                    if item not in out[ order['location'] ]['items']:
+                        out[ order['location'] ]['items'][item] = 0
+                    out[ order['location'] ]['items'][item] += order['items'][item]
         return out
 
 

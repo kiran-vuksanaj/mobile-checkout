@@ -4,16 +4,25 @@
 
 {% block body %}
 
-<div class="container-sm">
+<div class="container-sm mx-auto">
   <h1> Activity Today </h1>
   <p> Refresh for most up to date info. </p>
   <p> Activity recorded at {{ data|length }} location(s). </p>
   {% for location in data %}
-  <h2> {{ names['locations'][location] }} </h2>
-  <ul>
-    {% for item in data[location] %}
-    <li> {{names['items'][item]}}: {{data[location][item]}} </li>
-    {% endfor %}
+  <div class="container-sm bg-light rounded p-2">
+    <h2> {{ names['locations'][location] }} </h2>
+    <p> Total of <strong>{{ data[location]['visits']}}</strong> transactions today. </p>
+    <table class="table table-hover table-light table-sm">
+      <tbody>
+	{% for item in data[location]['items'] %}
+	<tr>
+	  <td> {{names['items'][item]}} </td>
+	  <td> {{data[location]['items'][item]}} </td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>  
   {% endfor %}
   
 </div>
