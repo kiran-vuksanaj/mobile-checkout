@@ -68,6 +68,11 @@ def inventory_page():
     items=list_inventory()
     return render_template("inventory.html", items=items)
 
+@app.route("/bag")
+def average_bag_page():
+    return render_template("bag.html", names=sq.name_map)
+
+
 @app.route("/api/date")
 def api_date_report():
     sq.update_orders()
@@ -107,3 +112,12 @@ def api_del_item():
     i_id = request.args.get('i_id')
     del_item(int(i_id))
     return "success"
+
+@app.route("/api/bag")
+def api_average_bag():
+    sq.update_orders()
+    location = request.args.get('location')
+    return {
+        'data': sq.average_bag(location),
+        'names': sq.name_map
+        }

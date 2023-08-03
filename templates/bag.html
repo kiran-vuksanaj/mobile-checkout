@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %} Average Bag | YMCA Mobile Market {% endblock %}
+{% block javascript %}bag.js{% endblock %}
+{% block body %}
+<div class="container-sm">
+  <div class="row mt-2 p-3 bg-light rounded">
+    <div class="col-lg-2">
+      <form>
+	<div class="form-group mr-auto">
+	  <label for="location">Location</label>
+	  <select class="form-control" id="location">
+	    {% for location in names['locations'] %}
+	    <option id="location-{{location}}">{{ names['locations'][location] }}</option>
+	    {% endfor %}
+	  </select>
+	</div>
+      </form>
+    </div>
+    <div class="col-lg-8">
+      <h3> Average Bag Distributed at <em id="locationTitle"></em></h3>
+      <div class="container" id="bagGraph">
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

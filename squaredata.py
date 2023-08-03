@@ -36,7 +36,7 @@ class SquareData:
                 print(error['category'])
                 print(error['code'])
                 print(error['detail'])
-        self.locations = [ location['id'] for location in result.body['locations'] ]
+        self.locations = [ location['id'] for location in result.body['locations']]
 
     def build_item_names(self):
         result = self.client.catalog.list_catalog()
@@ -62,6 +62,47 @@ class SquareData:
         return out
 
     def update_orders(self):
+
+        # get the IDs of recent updates
+        search_body = {
+            'location_ids': self.locations,
+            'limit': 100,
+            'return_entries': True,
+            'query': {
+                'filter': {
+                    'state_filter': {
+                        'states': ['COMPLETED']
+                        }
+                    }, 
+                'sort': {
+                    'sort_field': 'CLOSED_AT',
+                    'sort_order': 'DESC'
+                    }
+                }
+            }
+        keep_going = True
+        existing_ids = [ order['id'] for order in self.orders ]
+        batch_ids = []
+        while keep_going:
+            result = self.client.orders.search_orders(body=search_body)
+        
+            new_ids = [ entry['order_id'] for entry in result.body['order_entries'] if entry['order_id'] not in existing_ids ]
+            batch_ids += new_ids
+            keep_going = ( 'cursor' in result.body ) and ( len(new_ids) == len(result.body['order_entries']))
+            if 'cursor' in result.body:
+                search_body['cursor'] = result.body['cursor']
+                
+        for i in range(0,len(batch_ids),100):
+            retrieve_body = {
+                'order_ids': batch_ids[i: min(i+100,len(batch_ids))]
+            }
+            result = self.client.orders.batch_retrieve_orders(body=retrieve_body)
+            self.orders += [ self.reformat_order(order) for order in result.body['orders'] ]
+        print('Order list updated')
+        return
+    
+    def update_orders_all(self):
+        # deprecated--not in use
         search_body = {
             'location_ids': self.locations,
             'limit':500
@@ -75,6 +116,7 @@ class SquareData:
             result = self.client.orders.search_orders(body=search_body)
         orders_raw += result.body['orders']
         self.orders = [ self.reformat_order(order) for order in orders_raw ]
+        print(self.orders[-1])
         print('Orders Retreived')
 
     def qty_sold(self,dates=None,items=None,locations=None):
@@ -106,6 +148,23 @@ class SquareData:
                         out[ order['location'] ]['items'][item] = 0
                     out[ order['location'] ]['items'][item] += order['items'][item]
         return out
+
+    def average_bag(self,location):
+        item_qty = {}
+        visit_total = 0
+        for order in self.orders:
+            if order['location'] == location:
+                visit_total += 1
+                for item in order['items']:
+                    if item not in item_qty:
+                        item_qty[item] = 0
+                    item_qty[item] += order['items'][item]
+        averages = []
+        for item in item_qty:
+            averages.append( (item, item_qty[item] / visit_total) )
+        averages.sort(key = lambda x: x[1])
+        averages.reverse()
+        return averages
 
 
 
