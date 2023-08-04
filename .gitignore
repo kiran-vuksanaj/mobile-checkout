@@ -264,3 +264,6 @@ pyrightconfig.json
 # sqlite databases
 *.db
 *~
+
+# client secret config file
+config.sh
