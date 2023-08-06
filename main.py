@@ -2,6 +2,7 @@ from flask import Flask, render_template,request
 import sqlite3
 from datetime import datetime, date
 from squaredata import SquareData
+import json
 
 app = Flask(__name__)
 sq = SquareData()
@@ -94,6 +95,27 @@ def api_qty_data():
         'data': data
         }
 
+@app.route("/api/totals")
+def api_totals():
+    start = datetime.strptime( request.args['start'], '%Y-%m-%d').date()
+    end = datetime.strptime( request.args['end'], '%Y-%m-%d').date()
+    fields = json.loads(request.args['fields'])
+
+    def date_match(date):
+        return date >= start and date <= end
+
+    location_match = lambda x: True
+    if 'location' in request.args:
+        location_match = lambda x: x==request.args['location']
+        
+    data = sq.totals(date_match,fields,location_match)
+    
+    return {
+        'success':True,
+        'names':sq.name_map,
+        'fields':data
+    }
+
 @app.route("/api/items")
 def api_list_items():
     return {'items': list_inventory()}
@@ -121,3 +143,4 @@ def api_average_bag():
         'data': sq.average_bag(location),
         'names': sq.name_map
         }
+

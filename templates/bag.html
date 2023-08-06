@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %} Average Bag | YMCA Mobile Market {% endblock %}
+{% block title %} Location Report | YMCA Mobile Market {% endblock %}
 {% block javascript %}bag.js{% endblock %}
 {% block body %}
 <div class="container-sm">
@@ -17,8 +17,14 @@
       </form>
     </div>
     <div class="col-lg-8">
-      <h3> Average Bag Distributed at <em id="locationTitle"></em></h3>
-      <div class="container" id="bagGraph">
+      <div class="container">
+	<h3> Average Bag Distributed at <em id="locationTitle"></em></h3>
+	<div class="container" id="bagGraph"> </div>
+	<div class="container" id="thirtyDay">
+	  <h3> Last 30 Days </h3>
+	  <p><strong id="visits30"></strong> location visits in the last 30 days</p>
+	  <p><strong id="items30"></strong> items distributed in the last 30 days</p>
+	</div>
       </div>
     </div>
   </div>

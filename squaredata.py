@@ -59,6 +59,11 @@ class SquareData:
                 out['items'][ item['catalog_object_id'] ] = float(item['quantity'])
             else:
                 out['items'][ item['catalog_object_id'] ] += float(item['quantity'])
+
+            # add name to name_map if its not alr there
+            # eg deleted items
+            if item['catalog_object_id'] not in self.name_map['items']:
+                self.name_map['items'][item['catalog_object_id']] = item['name']
         return out
 
     def update_orders(self):
@@ -77,9 +82,9 @@ class SquareData:
                 'sort': {
                     'sort_field': 'CLOSED_AT',
                     'sort_order': 'DESC'
-                    }
                 }
             }
+        }
         keep_going = True
         existing_ids = [ order['id'] for order in self.orders ]
         batch_ids = []
@@ -119,6 +124,25 @@ class SquareData:
         print(self.orders[-1])
         print('Orders Retreived')
 
+    def field_value(self,order,field):
+        if field == "visits":
+            return 1
+        elif field == "allitems":
+            return sum(order['items'].values())
+        elif field in order['items']:
+            return order['items'][field]
+        else:
+            return 0
+        
+    def totals(self,date_match,fields,location_match):
+        
+        def conditions_match(order):
+            return date_match(order['time'].date()) and location_match(order['location'])
+        out = {}
+        for field in fields:
+            out[field] = sum( [self.field_value(order,field) for order in self.orders if conditions_match(order)] )
+        return out
+        
     def qty_sold(self,dates=None,items=None,locations=None):
         def conditions_match(order):
             return (

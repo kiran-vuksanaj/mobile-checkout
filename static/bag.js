@@ -19,11 +19,26 @@ var svg = d3.select('#bagGraph').
 	 'translate('+margin.left+','+margin.top+')');
 
 const locationTitle = $('#locationTitle')[0];
-const locField = $('#location')[0]
+const locField = $('#location')[0];
 
-function changeGraphData(location) {
+const today = new Date();
+const start = d3.utcDay.offset(today,-30);
+
+function changeData(location) {
     locationTitle.textContent = locField.value;
     $.get('/api/bag', {'location':location}, buildGraph);
+    
+    $.get('/api/totals', {
+	'location':location,
+	'start': d3.timeFormat('%Y-%m-%d')(start),
+	'end': d3.timeFormat('%Y-%m-%d')(today),
+	'fields': JSON.stringify(['visits','allitems'])
+    }, update30Day);
+}
+
+function update30Day(data) {
+    $('#visits30')[0].textContent = data['fields']['visits'];
+    $('#items30')[0].textContent = data['fields']['allitems'];
 }
 
 function buildGraph(data) {
@@ -73,9 +88,9 @@ function selectedLocation(e) {
 }
 
 $('#location').on('change', function(e) {
-    changeGraphData( selectedLocation(e) );
+    changeData( selectedLocation(e) );
 });
 
-changeGraphData( locField[ locField.selectedIndex ].id.split("-")[1] );
+changeData( locField[ locField.selectedIndex ].id.split("-")[1] );
 
 console.log('end');
