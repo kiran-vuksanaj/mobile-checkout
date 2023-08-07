@@ -6,6 +6,29 @@ import matplotlib.pyplot as plt
 import numpy as np
 import uuid
 
+
+SAMPLE_ITEM = '''{
+    "type": "ITEM",
+    "id": "#ni",
+    "item_data": {
+        "name": "{{name}}",
+        "variations": [
+            {
+                "type": "ITEM_VARIATION",
+                "id": "#ni_var",
+                "item_variation_data": {
+                    "name": "Regular",
+                    "pricing_type": "FIXED_PRICING",
+                    "price_money": {
+                        "amount": 0,
+                        "currency": "USD"
+                    }
+                }
+            }
+        ]
+    }
+}'''
+
 class SquareData:
     name_map = {
         'locations': {},
@@ -21,7 +44,7 @@ class SquareData:
 
     def __init__(self):
         self.build_locations()
-        self.build_item_names()
+        self.update_catalog()
         self.update_orders()
         print('Square connection initialized')
 
@@ -41,19 +64,16 @@ class SquareData:
 
     def update_catalog(self):
         result = self.client.catalog.list_catalog()
-        self.catalog = result.body['objects']
-        
-    def build_item_names(self):
-        result = self.client.catalog.list_catalog()
-        self.catalog = result.body['objects']
+        self.catalog = [ obj for obj in result.body['objects'] if obj['type'] == 'ITEM' ]
+        self.catalog.sort(key= lambda x: x['item_data']['name'])
         item_names = {}
         for catalog_object in result.body['objects']:
             if catalog_object['type'] == "ITEM":
                 # print( catalog_object['id'],catalog_object['item_data']['name'] )
                 # print(json.dumps(catalog_object,indent=2))
-                item_names[ catalog_object['item_data']['variations'][0]['id'] ] = catalog_object['item_data']['name']        
-        self.name_map['items'] = item_names
-
+                self.name_map['items'][ catalog_object['item_data']['variations'][0]['id'] ] = catalog_object['item_data']['name']        
+        return
+    
     def reformat_order(self,order):
         out = {}
         out['time'] = datetime.strptime(order['closed_at'],'%Y-%m-%dT%H:%M:%S.%fZ')
@@ -169,7 +189,15 @@ class SquareData:
             })
         return result
 
-        
+    def new_item(self,name):
+        item_object = json.loads(SAMPLE_ITEM)
+        item_object['item_data']['name'] = name
+        result = self.client.catalog.upsert_catalog_object(body={
+            'idempotency_key': uuid.uuid1().hex,
+            'object': item_object
+            })
+        self.update_catalog()
+        return result
         
     def field_value(self,order,field):
         if field == "visits":
