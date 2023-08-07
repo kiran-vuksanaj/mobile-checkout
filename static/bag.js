@@ -1,5 +1,4 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm"
-
 console.log('bag')
 
 var margin = {
@@ -94,3 +93,5 @@ $('#location').on('change', function(e) {
 changeData( locField[ locField.selectedIndex ].id.split("-")[1] );
 
 console.log('end');
+
+

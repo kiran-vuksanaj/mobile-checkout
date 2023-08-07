@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Plan Visit | YMCA Mobile Market{% endblock %}
+{% block javascript %}visit.js{% endblock %}
+{% block body %}
+<div class="container-sm">
+  <div class="row mt-2 p-3 bg-light rounded">
+    <div class="col-lg-5">
+      <h3> Configure Visit </h3>
+      <div class="alert alert-primary" id="initialMessage">
+	Heading out for a mobile market visit? Select the location you're headed to and the items you're bringing to get the tablets ready!
+      </div>
+      <div class="alert alert-success" id="successMessage" style="display: none;">
+	Location visit for <span id="successLocationName"></span> with <span id="itemCount"></span> item(s) configured! <strong>On each tablet, please switch the Square app to the correct location.</strong>
+      </div>
+      <form id="configure">
+	<label for="location">Location</label>
+	<select class="form-control" id="location">
+	  {% for location in locations %}
+	  <option id="location-{{location}}">{{ names['locations'][location] }}</option>
+	  {% endfor %}
+	</select>
+	<p class="mt-3 mb-0"> Today's Items </p>
+	<div id="itemSwitches">
+	  {% for item in catalog %}
+	  <div class="form-check form-switch">
+	    <input class="form-check-input" type="checkbox" role="switch" id="item-{{item['item_data']['variations'][0]['id']}}">
+	    <label class="form-check-label" for="item-{{item['item_data']['variations'][0]['id']}}">{{names['items'][ item['item_data']['variations'][0]['id'] ]}}</label>
+	  </div>
+	  {% endfor %}
+	</div>
+	<button type="submit" class="btn btn-primary mb-3" id="submitConfig">Configure Visit</button>      
+      </form>
+      <hr />
+    </div>
+    <div class="col-lg-7">
+      <h4> Location Report for <em id="locationTitle"></em> </h4>
+      <div class="container">
+	<h5> Average Bag Distributed </h5>
+	<div class="container" id="bagGraph"> </div>
+	<div class="container" id="thirtyDay">
+	  <h5> Last 30 Days </h5>
+	  <p><strong id="visits30"></strong> location visits in the last 30 days</p>
+	  <p><strong id="items30"></strong> items distributed in the last 30 days</p>
+	</div>
+      </div>
+    </div>    
+  </div>
+</div>
+
+{% endblock %}

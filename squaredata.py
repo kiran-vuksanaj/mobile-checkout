@@ -4,6 +4,7 @@ import os
 from datetime import datetime, date
 import matplotlib.pyplot as plt
 import numpy as np
+import uuid
 
 class SquareData:
     name_map = {
@@ -38,8 +39,13 @@ class SquareData:
                 print(error['detail'])
         self.locations = [ location['id'] for location in result.body['locations']]
 
+    def update_catalog(self):
+        result = self.client.catalog.list_catalog()
+        self.catalog = result.body['objects']
+        
     def build_item_names(self):
         result = self.client.catalog.list_catalog()
+        self.catalog = result.body['objects']
         item_names = {}
         for catalog_object in result.body['objects']:
             if catalog_object['type'] == "ITEM":
@@ -124,6 +130,47 @@ class SquareData:
         print(self.orders[-1])
         print('Orders Retreived')
 
+    def set_available_items(self,location,item_vars):
+        items = []
+        for obj in self.catalog:
+            if obj['type'] == 'ITEM' and obj['item_data']['variations'][0]['id'] in item_vars:
+                items.append(obj['id'])
+        print(len(items),len(item_vars))
+        all_ids = items + item_vars
+
+        updated_objects = []
+        
+        def update_presence(obj):
+            if obj['id'] in all_ids:
+                # make it present here
+                if 'absent_at_location_ids' in obj and location in obj['absent_at_location_ids']:
+                    obj['absent_at_location_ids'].remove(location)
+            else:
+                # make it absent here
+                if 'absent_at_locaion_ids' not in obj:
+                    obj['absent_at_location_ids'] = []
+                if location not in obj['absent_at_location_ids']:
+                    obj['absent_at_location_ids'].append(location)
+
+            updated_objects.append(obj)
+            
+            if obj['type'] == 'ITEM':
+                update_presence(obj['item_data']['variations'][0])
+
+        
+        for obj in self.catalog:
+            update_presence(obj)
+            
+        # print(json.dumps(self.catalog,indent=2))
+
+        result = self.client.catalog.batch_upsert_catalog_objects(body={
+            'idempotency_key': uuid.uuid1().hex,
+            'batches':[{'objects':self.catalog}]
+            })
+        return result
+
+        
+        
     def field_value(self,order,field):
         if field == "visits":
             return 1

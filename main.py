@@ -74,6 +74,15 @@ def average_bag_page():
     return render_template("bag.html", names=sq.name_map)
 
 
+@app.route("/visit")
+def plan_visit_page():
+    sq.update_catalog()
+    return render_template("visit.html",
+                           locations=sq.locations,
+                           names=sq.name_map,
+                           catalog=[item for item in sq.catalog if item['type']=='ITEM']
+                           )
+
 @app.route("/api/date")
 def api_date_report():
     sq.update_orders()
@@ -114,6 +123,17 @@ def api_totals():
         'success':True,
         'names':sq.name_map,
         'fields':data
+    }
+
+@app.route("/api/set_availability")
+def api_set_availability():
+    location = request.args['location']
+    items = json.loads(request.args['items'])
+    result = sq.set_available_items(location,items)
+    return {
+        'success': 'errors' in result.body,
+        'count': len(items),
+        'names': sq.name_map
     }
 
 @app.route("/api/items")
