@@ -65,7 +65,7 @@ class SquareData:
     def update_catalog(self):
         result = self.client.catalog.list_catalog()
         self.catalog = [ obj for obj in result.body['objects'] if obj['type'] == 'ITEM' ]
-        self.catalog.sort(key= lambda x: x['item_data']['name'])
+        self.catalog.sort(key= lambda x: x['item_data']['name'].lower())
         item_names = {}
         for catalog_object in result.body['objects']:
             if catalog_object['type'] == "ITEM":

@@ -35,6 +35,27 @@ function configureVisit(e){
     
 }
 
+function resetPage(e) {
+    e.preventDefault();
+    $('#initialMessage').css('display','block');
+    $('#successMessage').css('display','none');
+    $('#itemSwitches input').prop('checked',false);
+}
+
+
+function newItem(e) {
+    e.preventDefault();
+    const name = $('#newitem input')[0].value;
+    if(name.length > 0){
+	$.get('/api/add_item',{'name':name}, function(data) {
+	    if(data['success']){
+		location.reload();
+	    }
+	});
+    }
+}
 
 $('#submitConfig').on('click',configureVisit);
+$('#location').on('change',resetPage);
+$('#submitNewItem').on('click',newItem);
 console.log('end');

@@ -9,14 +9,14 @@
   <p> Refresh for most up to date info. </p>
   <p> Activity recorded at {{ data|length }} location(s). </p>
   {% for location in data %}
-  <div class="container-sm bg-light rounded p-2">
+  <div class="container-sm bg-light rounded p-2 m-2">
     <h2> {{ names['locations'][location] }} </h2>
     <p> Total of <strong>{{ data[location]['visits']}}</strong> transactions today. </p>
     <table class="table table-hover table-light table-sm">
       <tbody>
 	{% for item in data[location]['items'] %}
 	<tr>
-	  <td> {{names['items'][item]}} </td>
+	  <td > {{names['items'][item]}} </td>
 	  <td> {{data[location]['items'][item]}} </td>
 	</tr>
 	{% endfor %}
